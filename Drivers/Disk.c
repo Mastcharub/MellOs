@@ -52,8 +52,11 @@ void wait_DRQ(){
 	while(!(inb(0x1F7) & STATUS_RDY));
 }
 
-void LBA28_read_sector(uint8_t drive, uint32_t LBA, uint32_t sector){
-    wait_BSY();
+uint32_t* LBA28_read_sector(uint8_t drive, uint32_t LBA, uint32_t sector){
+
+    uint16_t *addr;
+    
+	wait_BSY();
     outb(0x1F6, drive | ((LBA >> 24) & 0xF));
 	outb(0x1F1, 0x00);
     outb(0x1F2, sector);
@@ -61,8 +64,6 @@ void LBA28_read_sector(uint8_t drive, uint32_t LBA, uint32_t sector){
     outb(0x1F4, (uint8_t)(LBA >> 8));
 	outb(0x1F5, (uint8_t)(LBA >> 16)); 
 	outb(0x1F7, 0x20); // 0x20 = 'Read' Command
-
-    uint16_t *addr;
 
     for (int j = 0; j < sector; j ++){
 		wait_BSY();
@@ -75,8 +76,8 @@ void LBA28_read_sector(uint8_t drive, uint32_t LBA, uint32_t sector){
 
 		addr += 256;
 	}
-	kprint("                 ");
-	kprint(toString((uint32_t) addr, 16));
+
+	return addr;
 }
 
 void LBA28_write_sector(uint8_t drive, uint32_t LBA, uint32_t sector, uint32_t *buffer){

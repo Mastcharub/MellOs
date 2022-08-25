@@ -73,6 +73,7 @@ extern  void kpanic(struct regs *r){
 	for(;;);
 }
 
+extern  void mainn();
 
 extern  void main(){
 	//asm volatile("1: jmp 1b");		// "entry breakpoint" (debug)
@@ -86,6 +87,19 @@ extern  void main(){
 	kb_install();
     initializeMem();
     load_shell();
+
+	uint32_t* target = LBA28_read_sector(0xE0, 0x0, 1);
+
+	int i;
+    i = 0;
+    while(i < 128){
+        kprint(toString(target[i] & 0xFF, 16));
+        kprint(toString((target[i] >> 8) & 0xFF, 16));
+        i++;
+    }
+
+	//mainn();
+
 
 
     //kprint(strDecapitate("print pal", strLen("print ")));
